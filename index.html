@@ -575,40 +575,8 @@
             background: #60a5fa;
             transform: scale(1.2);
         }
-        /* PDF Viewer Hover Toolbar */
+        /* PDF Viewer basic container positioning */
         #pdf-viewer-container { position: relative; }
-        .pdf-toolbar {
-            position: absolute;
-            top: 8px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(17, 24, 39, 0.9);
-            border: 1px solid rgba(96, 165, 250, 0.5);
-            border-radius: 8px;
-            padding: 6px 10px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-            z-index: 2;
-        }
-        #pdf-viewer-container:hover .pdf-toolbar { opacity: 1; pointer-events: auto; }
-        .pdf-tool-btn {
-            background: transparent;
-            border: none;
-            color: #e2e8f0;
-            cursor: pointer;
-            padding: 6px 8px;
-            border-radius: 6px;
-            transition: background 0.2s ease, transform 0.1s ease;
-            font-weight: 600;
-        }
-        .pdf-tool-btn:hover { background: rgba(96, 165, 250, 0.15); }
-        .pdf-tool-btn:active { transform: scale(0.98); }
-        .pdf-zoom-indicator { color: #93c5fd; font-weight: 600; min-width: 44px; text-align: center; }
     .terminal-bg {
         position: fixed;
         bottom: 20px;
@@ -728,18 +696,13 @@
                 </div>
             </div>
 
-            <!-- Embedded PDF Viewer Container -->
+            <!-- Embedded PDF Viewer Container (GitHub-friendly) -->
             <div id="pdf-viewer-container" style="margin-top: 2rem; text-align: center; opacity: 0; max-height: 0; overflow: hidden; transition: opacity 0.5s ease, max-height 0.5s ease;">
-                <div class="pdf-toolbar" aria-hidden="true">
-                    <button id="pdf-zoom-out" class="pdf-tool-btn" title="Zoom out">−</button>
-                    <span id="pdf-zoom-indicator" class="pdf-zoom-indicator">100%</span>
-                    <button id="pdf-zoom-in" class="pdf-tool-btn" title="Zoom in">+</button>
-                    <span style="width:1px;height:20px;background:rgba(148,163,184,0.3);"></span>
-                    <button id="pdf-open-tab" class="pdf-tool-btn" title="Open in new tab">↗</button>
-                    <button id="pdf-download" class="pdf-tool-btn" title="Download">⤓</button>
-                    <button id="pdf-print" class="pdf-tool-btn" title="Print">🖨</button>
-                </div>
-                <iframe id="pdf-viewer" src="" width="100%" height="600px" style="border: 1px solid #60a5fa; border-radius: 12px; width: 100%; height: 600px; background:#0b1220;"></iframe>
+                <object id="pdf-viewer" data="" type="application/pdf" width="100%" height="600px" style="border: 1px solid #60a5fa; border-radius: 12px; width: 100%; height: 600px; background:#0b1220;">
+                    <p style="color:#cbd5e1; padding:1rem;">PDF preview isn’t available in this browser. 
+                        <a id="pdf-direct-link" href="" target="_blank" rel="noopener" style="color:#60a5fa; text-decoration: underline;">Open PDF in a new tab</a>
+                    </p>
+                </object>
             </div>
 
             <!-- Certificate Image Viewer Container -->
@@ -801,7 +764,9 @@
                     pdfContainer.style.maxHeight = '0';
                     pdfContainer.style.height = '0';
                     pdfContainer.style.padding = '0';
-                    pdfViewer.src = '';
+                    pdfViewer.removeAttribute('data');
+                    const link = document.getElementById('pdf-direct-link');
+                    if (link) link.removeAttribute('href');
                     pdfViewer.style.height = '0';
                 } else {
                     // Remove active class from all cells
@@ -811,12 +776,10 @@
                     // Load corresponding PDF in embedded viewer
                     const day = this.textContent.trim();
                     // Load the corresponding PDF from the "daily dairy" folder based on the day number
-                    if (typeof window.setPdfSrc === 'function') {
-                        window.setPdfSrc(`dailydairy/day-${day}.pdf`);
-                    } else {
-                        // Fallback: direct assignment if helper not ready
-                        pdfViewer.src = `dailydairy/day-${day}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
-                    }
+                    const pdfPath = `dailydairy/day-${day}.pdf`;
+                    pdfViewer.setAttribute('data', pdfPath);
+                    const link = document.getElementById('pdf-direct-link');
+                    if (link) link.setAttribute('href', pdfPath);
                     // Show container with smooth animation
                     pdfContainer.style.opacity = '1';
                     pdfContainer.style.maxHeight = '700px';
@@ -876,7 +839,6 @@
             const pdfContainer = document.getElementById('pdf-viewer-container');
             const pdfViewer = document.getElementById('pdf-viewer');
             let currentPdf = '';
-            let zoomLevel = 1;
             
             // Certificate gallery functionality
             const certificateImages = [
@@ -888,11 +850,7 @@
             const nextBtn = document.getElementById('next-cert');
             const galleryDots = document.querySelectorAll('.gallery-dot');
 
-            function updateZoomIndicator() {
-                const indicator = document.getElementById('pdf-zoom-indicator');
-                if (indicator) indicator.textContent = Math.round(zoomLevel * 100) + '%';
-            }
-            
+            // No custom zoom/toolbar for GitHub compatibility
             function updateGallery() {
                 certificateImg.src = certificateImages[currentImageIndex];
                 prevBtn.disabled = currentImageIndex === 0;
@@ -918,33 +876,7 @@
                 }
             }
 
-            function setPdfSrc(baseSrc) {
-                currentPdf = baseSrc;
-                // Note: native iframe PDF renders; true internal zoom isn't controllable cross-browser.
-                // We emulate zoom using CSS scale on the iframe content area.
-                const scale = `scale(${zoomLevel})`;
-                pdfViewer.src = `${baseSrc}#toolbar=0&navpanes=0&scrollbar=0`;
-                // After load, apply CSS transform to iframe body via zoom wrapper technique
-                pdfViewer.onload = function() {
-                    try {
-                        // Same-origin restriction may block; fallback handled below.
-                        const doc = pdfViewer.contentDocument || pdfViewer.contentWindow.document;
-                        if (doc && doc.body) {
-                            doc.body.style.transformOrigin = 'top center';
-                            doc.body.style.transform = scale;
-                        }
-                    } catch (e) {
-                        // Cross-origin PDF viewer (browser native). We'll fake zoom by scaling the iframe itself.
-                        pdfViewer.style.transformOrigin = 'top center';
-                        pdfViewer.style.transform = scale;
-                        // Adjust container maxHeight to accommodate scaling
-                        pdfContainer.style.maxHeight = (600 * zoomLevel + 100) + 'px';
-                    }
-                    updateZoomIndicator();
-                };
-            }
-            // Expose globally for day-click handler
-            window.setPdfSrc = setPdfSrc;
+            // Remove setPdfSrc and expose nothing to avoid CORS/toolbar issues
 
             if (certificateBtn && imageContainer && certificateImg) {
                 certificateBtn.addEventListener('click', function() {
@@ -960,7 +892,7 @@
                         // Hide PDF viewer if open
                         pdfContainer.style.opacity = '0';
                         pdfContainer.style.maxHeight = '0';
-                        pdfViewer.src = '';
+                        pdfViewer.removeAttribute('data');
 
                         // Reset to first image and show gallery
                         currentImageIndex = 0;
@@ -994,40 +926,7 @@
                     updateGallery();
                 });
             });
-            // Toolbar controls
-            const zoomInBtn = document.getElementById('pdf-zoom-in');
-            const zoomOutBtn = document.getElementById('pdf-zoom-out');
-            const openTabBtn = document.getElementById('pdf-open-tab');
-            const downloadBtn = document.getElementById('pdf-download');
-            const printBtn = document.getElementById('pdf-print');
-
-            function applyZoom(delta) {
-                zoomLevel = Math.min(3, Math.max(0.5, Math.round((zoomLevel + delta) * 10) / 10));
-                if (!currentPdf) return;
-                // Re-apply transform without reloading when possible
-                try {
-                    const doc = pdfViewer.contentDocument || pdfViewer.contentWindow.document;
-                    if (doc && doc.body) {
-                        doc.body.style.transform = `scale(${zoomLevel})`;
-                    } else {
-                        pdfViewer.style.transform = `scale(${zoomLevel})`;
-                    }
-                } catch (e) {
-                    pdfViewer.style.transform = `scale(${zoomLevel})`;
-                }
-                pdfContainer.style.maxHeight = (600 * zoomLevel + 100) + 'px';
-                updateZoomIndicator();
-            }
-
-            if (zoomInBtn) zoomInBtn.addEventListener('click', () => applyZoom(0.1));
-            if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => applyZoom(-0.1));
-            if (openTabBtn) openTabBtn.addEventListener('click', () => { if (currentPdf) window.open(currentPdf, '_blank'); });
-            if (downloadBtn) downloadBtn.addEventListener('click', () => { if (currentPdf) {
-                const a = document.createElement('a'); a.href = currentPdf; a.download = currentPdf.split('/').pop() || 'document.pdf'; a.click();
-            }});
-            if (printBtn) printBtn.addEventListener('click', () => { if (currentPdf) {
-                const w = window.open(currentPdf, '_blank'); if (w) w.addEventListener('load', () => w.print());
-            }});
+            // No toolbar controls required
         })();
 
         // Keyboard navigation enhancement
