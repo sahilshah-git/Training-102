@@ -787,63 +787,12 @@
             }
         }
 
-        // Map of available day -> exact PDF filename in "daily dairy" (case-sensitive on web servers)
-        const dayToFile = {
-            '1': 'Day-1.pdf',
-            '2': 'Day-2.pdf',
-            '3': 'Day-3.pdf',
-            '4': 'Day-4.pdf',
-            '5': 'Day-5.pdf',
-            '6': 'Day-6.pdf',
-            '7': 'Day-7.pdf',
-            '8': 'Day-8.pdf',
-            '9': 'Day-9.pdf',
-            '10': 'Day-10.pdf',
-            '11': 'Day-11.pdf',
-            '12': 'Day-12.pdf',
-            '13': 'Day-13.pdf',
-            '14': 'Day-14.pdf',
-            '15': 'Day-15.pdf',
-            '16': 'Day-16.pdf',
-            '17': 'Day-17.pdf',
-            '18': 'Day-18.pdf',
-            '19': 'Day-19.pdf',
-            '20': 'Day-20.pdf',
-            // 21 is missing
-            '22': 'Day-22.pdf',
-            // 23, 24 are missing
-            '25': 'Day-25.pdf',
-            '26': 'Day-26.pdf',
-            '27': 'Day-27.pdf',
-            '28': 'Day-28.pdf'
-        };
-
         // Add click handlers for day cells
         document.querySelectorAll('.day-cell').forEach(cell => {
-            const dayLabel = cell.textContent.trim();
-            const available = !!dayToFile[dayLabel];
-            if (!available && dayLabel !== '') {
-                cell.setAttribute('aria-disabled', 'true');
-                cell.setAttribute('title', `No PDF for Day ${dayLabel}`);
-                cell.style.opacity = '0.6';
-                cell.style.cursor = 'not-allowed';
-            } else if (available) {
-                cell.setAttribute('title', `Open Day ${dayLabel} PDF`);
-            }
             cell.addEventListener('click', function() {
                 const pdfViewer = document.getElementById('pdf-viewer');
                 const pdfContainer = document.getElementById('pdf-viewer-container');
                 const isActive = this.classList.contains('active');
-
-                // Prevent action for unavailable days
-                const clickedDay = this.textContent.trim();
-                const hasPdf = !!dayToFile[clickedDay];
-                if (!hasPdf) {
-                    // brief feedback animation only
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => { this.style.transform = ''; }, 150);
-                    return;
-                }
 
                 if (isActive) {
                     // Deselect the day and hide PDF viewer
@@ -859,14 +808,14 @@
                     document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('active'));
                     // Add active class to clicked cell
                     this.classList.add('active');
-                    // Load corresponding PDF in embedded viewer using exact filename mapping
-                    const day = clickedDay;
-                    const filename = dayToFile[day];
+                    // Load corresponding PDF in embedded viewer
+                    const day = this.textContent.trim();
+                    // Load the corresponding PDF from the "daily dairy" folder based on the day number
                     if (typeof window.setPdfSrc === 'function') {
-                        window.setPdfSrc(`daily-dairy/${filename}`);
+                        window.setPdfSrc(`daily-dairy/day-${day}.pdf`);
                     } else {
                         // Fallback: direct assignment if helper not ready
-                        pdfViewer.src = `daily-dairy/${filename}#toolbar=0&navpanes=0&scrollbar=0`;
+                        pdfViewer.src = `daily-dairy/day-${day}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
                     }
                     // Show container with smooth animation
                     pdfContainer.style.opacity = '1';
