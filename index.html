@@ -863,10 +863,10 @@
                     const day = clickedDay;
                     const filename = dayToFile[day];
                     if (typeof window.setPdfSrc === 'function') {
-                        window.setPdfSrc(`daily dairy/${filename}`);
+                        window.setPdfSrc(`daily-dairy/${filename}`);
                     } else {
                         // Fallback: direct assignment if helper not ready
-                        pdfViewer.src = `daily dairy/${filename}#toolbar=0&navpanes=0&scrollbar=0`;
+                        pdfViewer.src = `daily-dairy/${filename}#toolbar=0&navpanes=0&scrollbar=0`;
                     }
                     // Show container with smooth animation
                     pdfContainer.style.opacity = '1';
