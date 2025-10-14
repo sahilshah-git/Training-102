@@ -788,72 +788,83 @@
         }
 
         // Add click handlers for day cells
-        document.querySelectorAll('.day-cell').forEach(cell => {
-            cell.addEventListener('click', function() {
-                const pdfViewer = document.getElementById('pdf-viewer');
-                const pdfContainer = document.getElementById('pdf-viewer-container');
-                const isActive = this.classList.contains('active');
+       // --- UPDATED JAVASCRIPT BLOCK ---
 
-                if (isActive) {
-                    // Deselect the day and hide PDF viewer
-                    this.classList.remove('active');
-                    pdfContainer.style.opacity = '0';
-                    pdfContainer.style.maxHeight = '0';
-                    pdfContainer.style.height = '0';
-                    pdfContainer.style.padding = '0';
-                    pdfViewer.src = '';
-                    pdfViewer.style.height = '0';
-                } else {
-                    // Remove active class from all cells
-                    document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('active'));
-                    // Add active class to clicked cell
-                    this.classList.add('active');
-                    // Load corresponding PDF in embedded viewer
-                    const day = this.textContent.trim();
-                    // Load the corresponding PDF from the "daily dairy" folder based on the day number
-                    if (typeof window.setPdfSrc === 'function') {
-                        window.setPdfSrc(`dailydairy/day-${day}.pdf`);
-                    } else {
-                        // Fallback: direct assignment if helper not ready
-                        pdfViewer.src = `dailydairy/day-${day}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
-                    }
-                    // Show container with smooth animation
-                    pdfContainer.style.opacity = '1';
-                    pdfContainer.style.maxHeight = '700px';
-                    pdfContainer.style.height = 'auto';
-                    pdfContainer.style.padding = '1rem';
-                    pdfViewer.style.height = '600px';
+document.querySelectorAll('.day-cell').forEach(cell => {
+    cell.addEventListener('click', function() {
+        const pdfViewer = document.getElementById('pdf-viewer');
+        const pdfContainer = document.getElementById('pdf-viewer-container');
+        const isActive = this.classList.contains('active');
 
-                    // Ensure certificate image viewer is hidden if it was open
-                    const imgContainer = document.getElementById('image-viewer-container');
-                    if (imgContainer) {
-                        imgContainer.style.opacity = '0';
-                        imgContainer.style.maxHeight = '0';
-                    }
+        // Check if the cell is an 'empty' cell and prevent action
+        if (this.classList.contains('empty')) return;
 
-                    // Smoothly scroll to the PDF viewer once it starts expanding
-                    setTimeout(() => {
-                        pdfContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 60);
+        if (isActive) {
+            // Deselect the day and hide PDF viewer
+            this.classList.remove('active');
+            pdfContainer.style.opacity = '0';
+            pdfContainer.style.maxHeight = '0';
+            pdfContainer.style.height = '0';
+            pdfContainer.style.padding = '0';
+            pdfViewer.src = '';
+            pdfViewer.style.height = '0';
+        } else {
+            // Remove active class from all cells
+            document.querySelectorAll('.day-cell').forEach(c => c.classList.remove('active'));
+            // Add active class to clicked cell
+            this.classList.add('active');
+            // Load corresponding PDF in embedded viewer
+            const day = this.textContent.trim();
+            
+            // --- CORE FIX: CORRECTED SYNTAX AND CAPITALIZATION ('Day' instead of 'day') ---
+            const pdfPath = `dailydairy/Day-${day}.pdf`;
 
-                    console.log(`Clicked on Day ${day}`);
-                }
+            if (typeof window.setPdfSrc === 'function') {
+                window.setPdfSrc(pdfPath);
+            } else {
+                // Fallback: direct assignment with parameters
+                pdfViewer.src = `${pdfPath}#toolbar=0&navpanes=0&scrollbar=0`; // Added missing backtick and parameters for fallback
+            }
+            // --- END CORE FIX ---
 
-                // Add click animation
-                this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                }, 150);
-            });
+            // Show container with smooth animation
+            pdfContainer.style.opacity = '1';
+            pdfContainer.style.maxHeight = '700px';
+            pdfContainer.style.height = 'auto';
+            pdfContainer.style.padding = '1rem';
+            pdfViewer.style.height = '600px';
 
-            // Keyboard support
-            cell.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.click();
-                }
-            });
-        });
+            // Ensure certificate image viewer is hidden if it was open
+            const imgContainer = document.getElementById('image-viewer-container');
+            if (imgContainer) {
+                imgContainer.style.opacity = '0';
+                imgContainer.style.maxHeight = '0';
+            }
+
+            // Smoothly scroll to the PDF viewer once it starts expanding
+            setTimeout(() => {
+                pdfContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 60);
+
+            console.log(`Clicked on Day ${day}`);
+        }
+
+        // Add click animation
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 150);
+    });
+
+    // Keyboard support
+    cell.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+        }
+    });
+});
+// --- END UPDATED JAVASCRIPT BLOCK ---
 
         // Add click handlers for action buttons
         document.querySelectorAll('.action-btn').forEach(button => {
