@@ -812,10 +812,10 @@
                     const day = this.textContent.trim();
                     // Load the corresponding PDF from the "daily dairy" folder based on the day number
                     if (typeof window.setPdfSrc === 'function') {
-                        window.setPdfSrc(`daily-dairy/day-${day}.pdf`);
+                        window.setPdfSrc(`dailydairy/day-${day}.pdf`);
                     } else {
                         // Fallback: direct assignment if helper not ready
-                        pdfViewer.src = `daily-dairy/day-${day}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
+                        pdfViewer.src = `dailydairy/day-${day}.pdf#toolbar=0&navpanes=0&scrollbar=0`;
                     }
                     // Show container with smooth animation
                     pdfContainer.style.opacity = '1';
