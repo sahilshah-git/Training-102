@@ -970,13 +970,11 @@
             }
 
             function setPdfSrc(baseSrc) {
-                // Encode URL for GitHub Pages (spaces and special characters)
-                const encodedSrc = encodeURI(baseSrc);
-                currentPdf = encodedSrc;
+                currentPdf = baseSrc;
                 // Note: native iframe PDF renders; true internal zoom isn't controllable cross-browser.
                 // We emulate zoom using CSS scale on the iframe content area.
                 const scale = `scale(${zoomLevel})`;
-                pdfViewer.src = `${encodedSrc}#toolbar=0&navpanes=0&scrollbar=0`;
+                pdfViewer.src = `${baseSrc}#toolbar=0&navpanes=0&scrollbar=0`;
                 // After load, apply CSS transform to iframe body via zoom wrapper technique
                 pdfViewer.onload = function() {
                     try {
