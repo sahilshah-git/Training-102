@@ -693,7 +693,7 @@
                     </div>
                     
                     <button id="btn-certificate" class="action-btn" tabindex="0">Training Certificate</button>
-                    <button class="action-btn secondary-btn" tabindex="0">Final Report</button>
+                    <button id="btn-final-report" class="action-btn secondary-btn" tabindex="0">Final Report</button>
                     <button class="action-btn tertiary-btn" tabindex="0">Gallery</button>
                     <button class="action-btn quaternary-btn" tabindex="0">Projects</button>
                 </div>
@@ -930,6 +930,39 @@
                 });
             });
             // No toolbar controls required
+        })();
+
+        // Open Final Report PDF in embedded viewer
+        (function() {
+            const finalReportBtn = document.getElementById('btn-final-report');
+            const pdfContainer = document.getElementById('pdf-viewer-container');
+            const pdfViewer = document.getElementById('pdf-viewer');
+            const imageContainer = document.getElementById('image-viewer-container');
+            const directLink = document.getElementById('pdf-direct-link');
+
+            if (finalReportBtn && pdfContainer && pdfViewer) {
+                finalReportBtn.addEventListener('click', function() {
+                    // Hide image gallery if visible
+                    if (imageContainer) {
+                        imageContainer.style.opacity = '0';
+                        imageContainer.style.maxHeight = '0';
+                    }
+
+                    // Set PDF and show viewer
+                    const pdfPath = 'final-report.pdf';
+                    pdfViewer.setAttribute('data', pdfPath);
+                    if (directLink) directLink.setAttribute('href', pdfPath);
+                    pdfContainer.style.opacity = '1';
+                    pdfContainer.style.maxHeight = '700px';
+                    pdfContainer.style.height = 'auto';
+                    pdfContainer.style.padding = '1rem';
+                    pdfViewer.style.height = '600px';
+
+                    setTimeout(() => {
+                        pdfContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 60);
+                });
+            }
         })();
 
         // Keyboard navigation enhancement
