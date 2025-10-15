@@ -695,7 +695,7 @@
                     <button id="btn-certificate" class="action-btn" tabindex="0">Training Certificate</button>
                     <button id="btn-final-report" class="action-btn secondary-btn" tabindex="0">Final Report</button>
                     <button class="action-btn tertiary-btn" tabindex="0">Gallery</button>
-                    <button class="action-btn quaternary-btn" tabindex="0">Projects</button>
+                    <button id="btn-projects" class="action-btn quaternary-btn" tabindex="0">Projects</button>
                 </div>
             </div>
 
@@ -961,6 +961,20 @@
                     setTimeout(() => {
                         pdfContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, 60);
+                });
+            }
+        })();
+
+        // Open Projects repository in a new tab
+        (function() {
+            const projectsBtn = document.getElementById('btn-projects');
+            if (projectsBtn) {
+                projectsBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const win = window.open('https://github.com/sahilshah-git/Filecrypti', '_blank');
+                    if (win) {
+                        win.opener = null; // prevent reverse tabnabbing
+                    }
                 });
             }
         })();
